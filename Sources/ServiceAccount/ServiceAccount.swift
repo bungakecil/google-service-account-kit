@@ -14,7 +14,7 @@ public class ServiceAccount: Credentials {
     
     private let httpClient: HTTPClient
     
-    private let properties: Properties
+    private let resources: ServiceAccountResources
     
     private let scopes: [String]
     
@@ -28,8 +28,8 @@ public class ServiceAccount: Credentials {
     
     private static let GoogleOAuthTokenURL = "https://www.googleapis.com/oauth2/v4/token"
     
-    public init(properties: Properties, scopes: [String], impersonating: String? = nil, httpClient: HTTPClient = HTTPClient.shared) {
-        self.properties = properties
+    public init(resources: ServiceAccountResources, scopes: [String], impersonating: String? = nil, httpClient: HTTPClient = HTTPClient.shared) {
+        self.resources = resources
         self.scopes = scopes
         self.impersonating = impersonating
         self.httpClient = httpClient
@@ -81,18 +81,18 @@ public class ServiceAccount: Credentials {
     
     private func generateJWT() throws -> String {
         let payload = JWTPayload(
-            iss: IssuerClaim(value: properties.clientEmail),
+            iss: IssuerClaim(value: resources.clientEmail),
             scope: scopes.joined(separator: " "),
             aud: AudienceClaim(value: ServiceAccount.GoogleOAuthTokenURL),
             exp: ExpirationClaim(value: Date().addingTimeInterval(3600)),
             iat: IssuedAtClaim(value: Date()),
             sub: impersonating
         )
-        guard let privateKeyData = properties.privateKey.data(
+        guard let privateKeyData = resources.privateKey.data(
             using: .utf8,
             allowLossyConversion: true
         ) else {
-            throw RefreshTokenError.failedToLoadPrivateKey(properties.privateKey)
+            throw RefreshTokenError.failedToLoadPrivateKey(resources.privateKey)
         }
         let privateKey = try RSAKey.private(pem: privateKeyData)
         return try JWTSigner.rs256(key: privateKey).sign(payload)

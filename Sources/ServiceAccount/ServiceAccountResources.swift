@@ -1,5 +1,5 @@
 //
-//  Properties.swift
+//  ServiceAccountResources.swift
 //  google-service-account-kit
 //
 //  Created by Bunga Mungil on 03/10/24.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct Properties: Codable {
+public struct ServiceAccountResources: Codable {
     
     public let type: String
     
@@ -33,7 +33,7 @@ public struct Properties: Codable {
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
         if let contents = try String(contentsOfFile: path).data(using: .utf8) {
-            self = try decoder.decode(Properties.self, from: contents)
+            self = try decoder.decode(ServiceAccountResources.self, from: contents)
         } else {
             throw LoadCredentialsError.failedToLoadFile(path)
         }
